@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<!--
+  ============================================================
+  ARCSLAB — Advanced Robotics and Control Systems Laboratory
+  Main page (single-page website)
+  ------------------------------------------------------------
+  HOW THIS PAGE WORKS (for non-programmers):
+  • This file holds the STRUCTURE of the page (sections, headings).
+  • The LOOK (colors, fonts, spacing) lives in  css/style.css
+  • The DATA (people, projects, facilities, events) lives in the
+    CSV files inside the  data/  folder. You normally only edit
+    those CSV files — the page updates itself automatically.
+  • js/main.js reads the CSV files and builds the cards.
+  ============================================================
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ARCSLAB | Advanced Robotics and Control Systems Laboratory</title>
+  <meta name="description" content="ARCSLAB — Advanced Robotics and Control Systems Laboratory, Department of Mechanical Engineering, University of Torbat Heydarieh. Research on continuum and soft robots.">
+  <meta name="keywords" content="continuum robots, soft robotics, control systems, robotics lab, University of Torbat Heydarieh, ARCSLAB">
+
+  <!-- Social-media preview (when the link is shared) -->
+  <meta property="og:title" content="ARCSLAB — Advancing Soft and Continuum Robotics">
+  <meta property="og:description" content="Advanced Robotics and Control Systems Laboratory, University of Torbat Heydarieh.">
+  <meta property="og:image" content="assets/images/hero/hero-continuum.svg">
+
+  <link rel="icon" type="image/svg+xml" href="assets/images/logo/favicon.svg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+  <!-- ===================== 1. TOP NAVIGATION BAR ===================== -->
+  <header class="site-header" id="top">
+    <nav class="nav container" aria-label="Main navigation">
+      <a href="#home" class="brand" aria-label="ARCSLAB home">
+        <img src="assets/images/logo/arcslab-logo.svg" alt="" width="34" height="34">
+        <span>ARCS<b>LAB</b></span>
+      </a>
+
+      <!-- "Hamburger" button: only visible on phones -->
+      <button class="nav-toggle" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+
+      <ul class="nav-links">
+        <li><a href="#about">About</a></li>
+        <li><a href="#people">People</a></li>
+        <li><a href="#research">Research</a></li>
+        <li><a href="#facilities">Facilities</a></li>
+        <li><a href="#news">News</a></li>
+        <li><a href="#contact" class="nav-cta">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+
+    <!-- ===================== 2. HERO / HOME ===================== -->
+    <section class="hero" id="home">
+      <!-- Background drawing of a continuum robot arm (assets/images/hero/) -->
+      <div class="hero-art" aria-hidden="true">
+        <img src="assets/images/hero/hero-continuum.svg" alt="">
+      </div>
+
+      <div class="container hero-content">
+        <p class="eyebrow">Department of Mechanical Engineering · University of Torbat Heydarieh</p>
+        <h1>ARCS<span>LAB</span></h1>
+        <p class="hero-full">Advanced Robotics and Control Systems Laboratory</p>
+        <p class="hero-tagline">Advancing Soft and Continuum Robotics</p>
+        <div class="hero-actions">
+          <a href="#research" class="btn btn-primary">Explore our research</a>
+          <a href="#people" class="btn btn-ghost">Meet the team</a>
+        </div>
+
+        <!-- Small live counters (filled automatically from the CSV files) -->
+        <ul class="hero-stats" aria-label="Lab at a glance">
+          <li><strong id="stat-people">–</strong><span>Members</span></li>
+          <li><strong id="stat-projects">–</strong><span>Active projects</span></li>
+          <li><strong id="stat-facilities">–</strong><span>Facilities</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ===================== 3. ABOUT / MISSION & VISION ===================== -->
+    <section class="section" id="about">
+      <div class="container">
+        <header class="section-head">
+          <p class="section-index">01</p>
+          <h2>About the Lab</h2>
+          <p class="section-lead">
+            ARCSLAB studies robots that bend instead of rotate — slender continuum
+            manipulators and compliant soft machines — and the modeling, sensing and
+            control methods that make them precise, safe and useful.
+          </p>
+        </header>
+
+        <div class="about-grid">
+          <article class="about-card">
+            <img src="assets/images/icons/vision.svg" alt="" class="about-icon">
+            <h3>Vision</h3>
+            <p>
+              To be a leading research hub in the region for soft and continuum
+              robotics, where rigorous mechanics and modern control theory meet
+              to create robots that work safely alongside people and inside
+              constrained, delicate environments.
+            </p>
+          </article>
+
+          <article class="about-card">
+            <img src="assets/images/icons/mission.svg" alt="" class="about-icon">
+            <h3>Mission</h3>
+            <ul class="tick-list">
+              <li>Develop accurate, real-time models of continuum and soft robots (Cosserat rods, constant-curvature and data-driven models).</li>
+              <li>Design robust, adaptive and learning-based controllers for highly nonlinear, under-actuated systems.</li>
+              <li>Build and test physical prototypes — tendon-driven, pneumatic and smart-material actuated.</li>
+              <li>Train the next generation of engineers through hands-on BSc and MSc research.</li>
+            </ul>
+          </article>
+
+          <article class="about-card">
+            <img src="assets/images/icons/focus.svg" alt="" class="about-icon">
+            <h3>Research Themes</h3>
+            <div class="chips">
+              <span class="chip">Continuum robots</span>
+              <span class="chip">Soft actuators</span>
+              <span class="chip">Nonlinear control</span>
+              <span class="chip">Modeling &amp; simulation</span>
+              <span class="chip">MEMS / NEMS</span>
+              <span class="chip">Aerial manipulation</span>
+              <span class="chip">Intelligent control</span>
+              <span class="chip">System identification</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== 4. PEOPLE (from data/team.csv) ===================== -->
+    <section class="section section-alt" id="people">
+      <div class="container">
+        <header class="section-head">
+          <p class="section-index">02</p>
+          <h2>People</h2>
+          <p class="section-lead">Faculty, graduate and undergraduate researchers of ARCSLAB.</p>
+        </header>
+
+        <!-- Founders appear here as large profile cards -->
+        <div id="faculty-list" class="faculty-grid"></div>
+
+        <!-- Filter buttons for students -->
+        <div class="filter-bar" role="tablist" aria-label="Filter students">
+          <button class="filter-btn active" data-filter="all">All students</button>
+          <button class="filter-btn" data-filter="phd">PhD</button>
+          <button class="filter-btn" data-filter="msc">MSc</button>
+          <button class="filter-btn" data-filter="bsc">BSc</button>
+          <button class="filter-btn" data-filter="alumni">Alumni</button>
+        </div>
+
+        <!-- Students appear here as small cards -->
+        <div id="student-list" class="people-grid"></div>
+      </div>
+    </section>
+
+    <!-- ===================== 5. RESEARCH / PROJECTS (from data/projects.csv) ===================== -->
+    <section class="section" id="research">
+      <div class="container">
+        <header class="section-head">
+          <p class="section-index">03</p>
+          <h2>Research &amp; Projects</h2>
+          <p class="section-lead">Ongoing and completed projects, each led by a student researcher under faculty supervision.</p>
+        </header>
+        <div id="project-list" class="project-grid"></div>
+      </div>
+    </section>
+
+    <!-- ===================== 6. FACILITIES (from data/facilities.csv) ===================== -->
+    <section class="section section-alt" id="facilities">
+      <div class="container">
+        <header class="section-head">
+          <p class="section-index">04</p>
+          <h2>Facilities</h2>
+          <p class="section-lead">Equipment, software and workspace available to lab members.</p>
+        </header>
+        <div id="facility-list" class="facility-grid"></div>
+      </div>
+    </section>
+
+    <!-- ===================== 7. NEWS & EVENTS (from data/events.csv) ===================== -->
+    <section class="section" id="news">
+      <div class="container">
+        <header class="section-head">
+          <p class="section-index">05</p>
+          <h2>News &amp; Events</h2>
+          <p class="section-lead">Upcoming conferences, visits, seminars and lab news.</p>
+        </header>
+
+        <h3 class="sub-head">Upcoming</h3>
+        <div id="events-upcoming" class="event-list"></div>
+
+        <h3 class="sub-head">Past</h3>
+        <div id="events-past" class="event-list event-list-past"></div>
+      </div>
+    </section>
+
+    <!-- ===================== 8. CONTACT ===================== -->
+    <section class="section section-dark" id="contact">
+      <div class="container contact-grid">
+        <div>
+          <p class="section-index">06</p>
+          <h2>Contact</h2>
+          <p class="section-lead">
+            Interested in joining ARCSLAB as a student, or in collaborating with us?
+            We would be glad to hear from you.
+          </p>
+        </div>
+
+        <!-- Edit the e-mail and address below directly -->
+        <address class="contact-card">
+          <div class="contact-row">
+            <img src="assets/images/icons/mail.svg" alt="">
+            <div>
+              <span class="label">E-mail</span>
+              <!-- TODO: replace with the official lab e-mail -->
+              <a href="mailto:arcslab@torbath.ac.ir">arcslab@torbath.ac.ir</a>
+            </div>
+          </div>
+          <div class="contact-row">
+            <img src="assets/images/icons/pin.svg" alt="">
+            <div>
+              <span class="label">Address</span>
+              ARCSLAB, Department of Mechanical Engineering<br>
+              University of Torbat Heydarieh<br>
+              7th km of Torbat Heydarieh – Mashhad Road<br>
+              Torbat Heydarieh, Razavi Khorasan, Iran<br>
+              Postal code: 9516168595
+            </div>
+          </div>
+          <div class="contact-row">
+            <img src="assets/images/icons/web.svg" alt="">
+            <div>
+              <span class="label">University</span>
+              <a href="https://www.torbath.ac.ir" target="_blank" rel="noopener">www.torbath.ac.ir</a>
+            </div>
+          </div>
+        </address>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>© <span id="year"></span> ARCSLAB · Advanced Robotics and Control Systems Laboratory · University of Torbat Heydarieh</p>
+      <a href="#top" class="to-top">Back to top ↑</a>
+    </div>
+  </footer>
+
+  <script src="js/main.js"></script>
+</body>
+</html>

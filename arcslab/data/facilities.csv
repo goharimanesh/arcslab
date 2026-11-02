@@ -1,0 +1,6 @@
+name,category,description,image
+Continuum Robot Test Bench,Experimental Setup,"Modular platform for multi-segment tendon-driven continuum arms with motorized tendon actuation and load cells.",assets/images/facilities/test-bench.svg
+Soft Robotics Fabrication Corner,Fabrication,"Silicone casting, vacuum degassing and 3D-printed molds for producing soft actuators and grippers.",assets/images/facilities/fabrication.svg
+Motion Capture & Vision,Sensing,"Camera-based tracking for measuring the shape and tip position of flexible robots in real time.",assets/images/facilities/vision.svg
+Embedded Control Stations,Electronics,"Microcontroller and real-time control boards, motor drivers, pressure regulators and data acquisition.",assets/images/facilities/electronics.svg
+Simulation & Computing,Software,"Workstations with MATLAB/Simulink, ROS, SOFA and Python for modeling, simulation and control design.",assets/images/facilities/computing.svg
