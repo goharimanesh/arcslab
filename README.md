@@ -12,8 +12,8 @@ lives in **CSV files** in `data/`. Edit a CSV, commit, and the site updates.
 
 | Page | What it shows |
 |---|---|
-| `index.html` | Interactive continuum robot, About, People, Projects, Publications summary, Teaching (+ Aparat video academy), Facilities, Collaborations, With Gratitude, News, Contact |
-| `publications.html` | All papers: search, filters (category / year / type), sorting, per-author statistics, two charts, most-cited list, copy APA/BibTeX, abstracts, QR codes |
+| `index.html` | Animated continuum robot tracking a ∞ path, About, People, Projects, Publications summary, Teaching (+ Aparat video academy), Facilities, Collaborations, With Gratitude, News, Contact |
+| `publications.html` | Papers on **continuum & soft robots, reinforcement learning and robotics** (other papers are kept in the data but not shown): search, filters, sorting, statistics, two charts, most-cited list, copy APA/BibTeX, abstracts, QR codes |
 | `profile.html?id=…` | One profile page for every member (bio, research, skills, links, projects, publications) |
 
 ---
@@ -28,7 +28,7 @@ arcslab/
 ├── js/
 │   ├── common.js                    ← shared helpers (CSV reader, photos, links)
 │   ├── main.js                      ← builds the home page
-│   ├── robot.js                     ← interactive continuum robot (hero)
+│   ├── robot.js                     ← animated continuum robot tracking ∞ (hero)
 │   ├── publications.js              ← publications page
 │   ├── profile.js                   ← profile page
 │   └── qr.js                        ← QR-code generator (offline, no library)
@@ -167,17 +167,25 @@ Needs [Git for Windows](https://git-scm.com/download/win) and [Python 3](https:/
 ### Categories — `data/publication_categories.csv`
 Each paper gets exactly one main category. Keywords are matched in the **title (×3)**, **keywords (×2)** and **abstract (×1)**;
 `term*4` gives a keyword weight 4. The highest score wins; ties go to the smaller `priority`; scores below 3 → `other`.
-Current categories (from your actual papers): Continuum & Soft Robotics · MEMS/NEMS & Nanomechanics · Vehicle & Mobility Dynamics ·
-Intelligent & Robust Control · AI & Machine Learning in Engineering · Micro/Nanofluids & Heat Transfer · Energy, Environment & Agriculture ·
-Biomedical Engineering · Solid Mechanics & Structures · Design Optimization & DoE · Interdisciplinary.
-Change words or weights, commit — the workflow re-classifies automatically.
+
+**Which papers appear on the website** is decided by the `show` column:
+
+| id | label | show |
+|---|---|---|
+| continuum-soft | Continuum & Soft Robotics | **yes** |
+| reinforcement-learning | Reinforcement Learning & Intelligent Control | **yes** |
+| robotics | Robotics | **yes** |
+| mems-nems, vehicle-mobility, intelligent-control (other control), ai-engineering, thermofluids, energy-environment, biomedical, structures, optimization, other | | no |
+
+All papers stay in `publications.csv`; only the `show = yes` categories are displayed (home page, publications page and profiles).
+To show another field later, change its `show` to `yes` and commit — nothing else is needed.
 
 ### Corrections — `data/publication_overrides.csv`
-`key,category,type,image,hide,note` — `key` is the DOI or the paper `id`. Examples:
+`key,category,type,image,hide,show,note` — `key` is the DOI or the paper `id`. Examples:
 ```
-10.56578/jemse020201,other,,,,management paper
-goharimanesh2020fuzzy,,,assets/images/publications/papers/frl-robot.jpg,,own figure
-10.1000/wrong.paper,,,,yes,not my paper
+10.1016/j.compeleceng.2024.109380,,,,,yes,show the micro-tweezer grasping paper although its category is hidden
+goharimanesh2020fuzzy,,,assets/images/publications/papers/frl-robot.jpg,,,own figure
+10.1000/wrong.paper,,,,yes,,not our paper — never show
 ```
 
 ### Adding a new paper by hand
@@ -185,17 +193,19 @@ Easiest: export it from Scopus (CSV) or Google Scholar (BibTeX), put the file in
 Or run `python scripts/publications.py import file.bib`.
 
 ### Notes
+- Preprint servers and repositories (SSRN, Research Square, arXiv, TSpace …) are ignored by `sync` and removed by `classify`
+  — edit `skip_venues` in `data/publications_config.json` to change the list.
 - Google Scholar has no API and blocks scripts, so it is not used by `sync`; OpenAlex covers the same papers and is free.
 - Citation counts differ between databases; the site shows the highest one. Weekly sync can also add papers that OpenAlex attributes to
   your ORCID — check new ones and hide wrong ones with an override (`hide = yes`).
-- “Citations per year” uses OpenAlex’s yearly counts once the first sync has run; before that it shows citations by publication year.
+- The citations chart shows the citations of the listed papers, grouped by their year of publication.
 
 ---
 
 ## 5. Customising
 - **Colours:** top of `css/style.css` (`--accent` blue, `--olive`).
 - **Bold name on the publications page:** `CONFIG.me` at the top of `js/publications.js`.
-- **Robot simulator:** block `P` at the top of `js/robot.js` (section length, curvature & speed limits, path size).
+- **Hero robot:** block `P` at the top of `js/robot.js` (section length, size and speed of the ∞ path, controller gain).
 - **Texts** (Vision, Mission, Contact): directly in `index.html`, each section is marked with a comment.
 
 ## 6. Before going live — checklist

@@ -90,15 +90,14 @@
   }
 
   /* ---------------- Publications teaser ---------------- */
-  function renderPubTeaser(pubs, overrides) {
-    const hidden = new Set(overrides.filter(o => /^y/i.test(o.hide)).map(o => o.key.toLowerCase()));
-    pubs = pubs.filter(p => !hidden.has((p.doi || "").toLowerCase()) && !hidden.has(p.id.toLowerCase()));
+  function renderPubTeaser(pubs, overrides, cats) {
+    pubs = window.ARC.visiblePubs(pubs, cats, overrides);
     const cites = pubs.map(p => int(p.citations)).sort((a, b) => b - a);
     const h = cites.filter((c, i) => c >= i + 1).length;
     const total = cites.reduce((a, b) => a + b, 0);
     const years = pubs.map(p => int(p.year)).filter(Boolean);
     $("pub-stats").innerHTML = [
-      [pubs.length, "Papers & books"], [total.toLocaleString("en"), "Citations"], [h, "h-index (lab)"], [Math.min(...years) + "–" + Math.max(...years), "Years"],
+      [pubs.length, "Papers"], [total.toLocaleString("en"), "Citations"], [h, "h-index"], [Math.min(...years) + "–" + Math.max(...years), "Years"],
     ].map(([v, l]) => `<div class="stat-tile"><strong>${v}</strong><span>${l}</span></div>`).join("");
     const item = p => `<li><a href="${esc(p.link || (p.doi ? "https://doi.org/" + p.doi : "publications.html"))}" target="_blank" rel="noopener">${esc(p.title)}</a>
       <span>${esc(p.venue)} · ${esc(p.year)}${int(p.citations) ? ` · <b>${p.citations}</b> citations` : ""}</span></li>`;
@@ -223,8 +222,9 @@
     TEAM = (await safe("data/team.csv", t => { renderPeople(t); return t; }, "student-list")) || [];
     let pubs = [];
     try {
-      const [p, o] = await Promise.all([loadCSV("data/publications.csv"), loadCSV("data/publication_overrides.csv").catch(() => [])]);
-      pubs = renderPubTeaser(p, o);
+      const [p, o, c] = await Promise.all([loadCSV("data/publications.csv"), loadCSV("data/publication_overrides.csv").catch(() => []),
+        loadCSV("data/publication_categories.csv").catch(() => [])]);
+      pubs = renderPubTeaser(p, o, c);
     } catch (e) { console.error(e); $("pub-top").innerHTML = `<li class="empty">${esc(failText("data/publications.csv"))}</li>`; }
     await Promise.all([
       safe("data/projects.csv", renderProjects, "project-list"),

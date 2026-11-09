@@ -71,46 +71,13 @@
           <ul class="hero-stats" aria-label="Lab at a glance">
             <li><strong id="stat-people">–</strong><span>Members</span></li>
             <li><strong id="stat-projects">–</strong><span>Active projects</span></li>
-            <li><strong id="stat-papers">–</strong><span>Papers</span></li>
+            <li><strong id="stat-papers">–</strong><span>Robotics papers</span></li>
             <li><strong id="stat-citations">–</strong><span>Citations</span></li>
           </ul>
         </div>
 
-        <!-- Interactive continuum robot (js/robot.js) -->
-        <figure class="robot-card" aria-label="Interactive continuum robot simulator">
-          <figcaption class="robot-head">
-            <span><i class="live-dot"></i> Live · 3-section continuum robot</span>
-            <span class="robot-hint">click the canvas to steer</span>
-          </figcaption>
-          <canvas id="robotCanvas"></canvas>
-          <div class="robot-read">
-            <div><small>Tracking error</small><b id="rbErr">–</b></div>
-            <div><small>RMS error</small><b id="rbRms">–</b></div>
-            <div><small>Section bending</small><b id="rbBend">–</b></div>
-          </div>
-          <div class="robot-paths" role="group" aria-label="Choose a path">
-            <button class="chip-btn on" data-path="circle">◯ Circle</button>
-            <button class="chip-btn" data-path="square">▢ Square</button>
-            <button class="chip-btn" data-path="triangle">△ Triangle</button>
-            <button class="chip-btn" data-path="eight">∞ Figure-8</button>
-            <button class="chip-btn" data-path="mouse">✥ Follow pointer</button>
-          </div>
-          <div class="robot-sliders">
-            <label>Speed <b id="rbSpeedVal">8 s/lap</b><input type="range" id="rbSpeed" min="2" max="13" step="1" value="8" aria-label="Path speed"></label>
-            <label>Controller gain K<sub>p</sub> <b id="rbGainVal">6.0</b><input type="range" id="rbGain" min="0.5" max="15" step="0.5" value="6" aria-label="Controller gain"></label>
-          </div>
-          <div class="robot-actions">
-            <button class="chip-btn" id="rbPush">⇢ Push (disturbance)</button>
-            <button class="chip-btn" id="rbPause">❚❚ Pause</button>
-            <label class="robot-ff"><input type="checkbox" id="rbFF" checked> Feedforward</label>
-            <details class="robot-model"><summary>How it works</summary>
-              <p>Piecewise-constant-curvature model; the controller maps the tip error to curvature rates with a
-                damped least-squares Jacobian inverse, ẋ = ẋ<sub>d</sub> + K<sub>p</sub>(x<sub>d</sub> − x), plus a
-                null-space term that keeps the robot straight. Curvature and actuator speed are limited. Switch
-                <i>Feedforward</i> off to see how the gain K<sub>p</sub> alone decides the tracking error.</p>
-            </details>
-          </div>
-        </figure>
+        <!-- Animated continuum robot tracking a figure-8 path (js/robot.js) -->
+        <div class="hero-robot" aria-hidden="true"><canvas id="robotCanvas"></canvas></div>
       </div>
     </section>
 
@@ -204,7 +171,7 @@
           <div>
             <p class="section-index">04</p>
             <h2>Publications</h2>
-            <p class="section-lead">Journal papers, conference papers and books by the lab's faculty and students — updated automatically every week.</p>
+            <p class="section-lead">Our papers on continuum and soft robots, reinforcement learning and robotics — updated automatically every week.</p>
           </div>
           <a class="btn btn-primary" href="publications.html">All publications →</a>
         </header>

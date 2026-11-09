@@ -590,3 +590,15 @@ a.member:hover { text-decoration: none; background: var(--accent-soft); }
 .profile-grid > *, .hero-grid > *, .pub-body, .top-item > div { min-width: 0; }
 .robot-ff { display: inline-flex; align-items: center; gap: 6px; font-size: .8rem; color: var(--ink-soft); margin-left: 4px; }
 .robot-ff input { accent-color: var(--accent); }
+
+/* ---- v3: large, frameless robot beside the title ---- */
+.hero-grid { grid-template-columns: 1fr 1.1fr; padding-top: 24px; padding-bottom: 24px; }
+.hero-robot { position: relative; }
+.hero-robot canvas { display: block; width: 100%; height: min(78vh, 700px); min-height: 520px; }
+@media (max-width: 1060px) { .hero-robot canvas { height: 520px; min-height: 0; } }
+@media (max-width: 760px) { .hero-robot canvas { height: 400px; } .hero-grid { padding-top: 32px; } }
+.hero-robot canvas#robotCanvas { border: 0; background: transparent; border-radius: 0; cursor: default; }
+.hero-stats { display: grid; grid-template-columns: repeat(4, auto); justify-content: start; gap: 18px 32px; }
+@media (max-width: 760px) { .hero-stats { grid-template-columns: repeat(2, auto); } }
+.hero-stats span { white-space: nowrap; }
+.hero-stats { gap: 18px 28px; }

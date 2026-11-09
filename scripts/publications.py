@@ -187,6 +187,20 @@ def lab_authors_for(r, cfg):
     return ";".join(sorted(found))
 
 
+def skipped_venue(rec, cfg):
+    v = (rec.get("venue") or "").lower()
+    return any(w.lower() in v for w in cfg.get("skip_venues", []) if w)
+
+
+def prune(rows, cfg):
+    """Remove preprints / repository copies that came from OpenAlex (see skip_venues in the config)."""
+    keep = [r for r in rows if not ("openalex" in (r.get("source") or "") and "scopus" not in (r.get("source") or "")
+                                    and "bibtex" not in (r.get("source") or "") and skipped_venue(r, cfg))]
+    if len(keep) != len(rows):
+        log(f"removed {len(rows) - len(keep)} preprint/repository records")
+    return keep
+
+
 # --------------------------------------------------------------------------- merging / dedupe
 def find_match(rec, rows, threshold):
     doi = norm_doi(rec.get("doi"))
@@ -488,7 +502,7 @@ def cmd_sync(cfg):
             if (w.get("type") or "") in skip:
                 continue
             rec = openalex_record(w, cfg, author["id"])
-            if not rec["title"]:
+            if not rec["title"] or skipped_venue(rec, cfg) or ((w.get("primary_location") or {}).get("source") or {}).get("type") == "repository":
                 continue
             m = find_match(rec, rows, th)
             if m:
@@ -524,7 +538,7 @@ def cmd_sync(cfg):
                 by_year[author["id"]] = {str(c["year"]): c.get("cited_by_count", 0) for c in cy if c.get("year")}
         except (ConnectionError, ValueError):
             pass
-    rows, merged = dedupe(rows, cfg)
+    rows, merged = dedupe(prune(rows, cfg), cfg)
     classify(rows)
     changed = write_publications(rows)
     meta_extra = {"citations_by_year": by_year} if by_year else {}
@@ -582,7 +596,20 @@ def score(rec, rules):
     return scores
 
 
+SMALL = {"a", "an", "and", "as", "at", "by", "for", "in", "of", "on", "or", "the", "to", "using", "with", "via", "from", "based"}
+
+
+def fix_caps(title):
+    """'FUZZY LOGIC FOR CONTROL OF ROBOTS' -> 'Fuzzy Logic for Control of Robots' (only for all-capital titles)."""
+    if not title or not title.isupper():
+        return title
+    words = title.lower().split()
+    return " ".join(w if (i and w in SMALL) else w[:1].upper() + w[1:] for i, w in enumerate(words))
+
+
 def classify(rows):
+    for r in rows:
+        r["title"] = fix_caps(r.get("title", ""))
     rules = load_rules()
     if not rules:
         log("No category rules found.")
@@ -603,10 +630,11 @@ def classify(rows):
 
 
 def cmd_classify(cfg):
-    rows = classify(read_csv(PUB_FILE))
+    rows = classify(prune(read_csv(PUB_FILE), cfg))
     from collections import Counter
+    shown = {r["id"] for r in read_csv(CAT_FILE) if (r.get("show") or "yes").strip().lower() != "no"}
     for k, v in Counter(r["category"] for r in rows).most_common():
-        log(f"  {v:3d}  {k}")
+        log(f"  {v:3d}  {k}{'   (shown on the website)' if k in shown else ''}")
     if write_publications(rows):
         write_meta(updated=now())
     return 0

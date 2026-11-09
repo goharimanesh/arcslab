@@ -17,8 +17,11 @@
     const id = new URLSearchParams(location.search).get("id");
     let team, projects, pubs, cats;
     try {
-      [team, projects, pubs, cats] = await Promise.all([loadCSV("data/team.csv"), loadCSV("data/projects.csv").catch(() => []),
-        loadCSV("data/publications.csv").catch(() => []), loadCSV("data/publication_categories.csv").catch(() => [])]);
+      let ovr;
+      [team, projects, pubs, cats, ovr] = await Promise.all([loadCSV("data/team.csv"), loadCSV("data/projects.csv").catch(() => []),
+        loadCSV("data/publications.csv").catch(() => []), loadCSV("data/publication_categories.csv").catch(() => []),
+        loadCSV("data/publication_overrides.csv").catch(() => [])]);
+      pubs = window.ARC.visiblePubs(pubs, cats, ovr);
     } catch (e) { root.innerHTML = `<section class="page-hero"><div class="container"><p class="empty">${esc(failText("data/team.csv"))}</p></div></section>`; return; }
 
     const m = team.find(x => x.id === id);

@@ -33,12 +33,7 @@
     ]);
     cats.forEach(c => CATS[c.id] = c);
     TEAM = team; MEMBERS = memberIndex(team); META = meta || {};
-    const O = {}; ovr.forEach(o => { if (o.key) O[o.key.toLowerCase()] = o; });
-    PUBS = pubs.map(p => {
-      const o = O[(p.doi || "").toLowerCase()] || O[(p.id || "").toLowerCase()] || {};
-      return { ...p, category: o.category || p.category || "other", type: o.type || p.type || "other",
-               image: o.image || p.image || "", hidden: /^y/i.test(o.hide || ""), cites: int(p.citations), yr: int(p.year) };
-    }).filter(p => !p.hidden);
+    PUBS = window.ARC.visiblePubs(pubs, cats, ovr).map(p => ({ ...p, cites: int(p.citations), yr: int(p.year) }));
   }
 
   /* ---------- helpers ---------- */
@@ -83,7 +78,8 @@
 
   /* ---------- header: scope buttons + stats ---------- */
   function renderScope() {
-    const faculty = TEAM.filter(m => (m.category || "").toLowerCase() === "faculty");
+    const faculty = TEAM.filter(m => (m.category || "").toLowerCase() === "faculty" && PUBS.some(p => list(p.lab_authors).includes(m.id)));
+    if (faculty.length < 2) { $("scope").innerHTML = ""; return; }
     $("scope").innerHTML = [`<button class="filter-btn ${state.scope ? "" : "active"}" data-scope="">Whole lab</button>`]
       .concat(faculty.map(m => `<button class="filter-btn ${state.scope === m.id ? "active" : ""}" data-scope="${esc(m.id)}">${esc(m.name)}</button>`)).join("");
   }
@@ -126,22 +122,10 @@
     const y0 = Math.min(...ys), y1 = Math.max(...ys, new Date().getFullYear()), years = [];
     for (let y = y0; y <= y1; y++) years.push(y);
     const papers = years.map(y => [y, P.filter(p => p.yr === y).length]);
-    // citations received per year (OpenAlex) if the weekly sync stored them; otherwise citations of papers by publication year
-    const cby = META.citations_by_year || {};
-    const ids = state.scope ? [state.scope] : Object.keys(cby);
-    let cites, note;
-    if (ids.length && ids.every(id => cby[id])) {
-      const sum = {}; ids.forEach(id => Object.entries(cby[id]).forEach(([y, v]) => sum[y] = (sum[y] || 0) + v));
-      const cy = Object.keys(sum).map(Number);
-      const yy = []; for (let y = Math.min(...cy); y <= Math.max(...cy); y++) yy.push(y);
-      cites = yy.map(y => [y, sum[y] || 0]);
-      $("chart-cites-title").textContent = "Citations received per year";
-      note = state.scope ? "OpenAlex" : "OpenAlex · sum of faculty profiles";
-    } else {
-      cites = years.map(y => [y, P.filter(p => p.yr === y).reduce((s, p) => s + p.cites, 0)]);
-      $("chart-cites-title").textContent = "Citations, by year of publication";
-      note = "citations of the papers published each year";
-    }
+    // citations of the papers shown here, grouped by the year each paper was published
+    const cites = years.map(y => [y, P.filter(p => p.yr === y).reduce((s, p) => s + p.cites, 0)]);
+    $("chart-cites-title").textContent = "Citations, by year of publication";
+    const note = "citations of the papers listed here";
     $("chart-cites-note").textContent = note; $("chart-papers-note").textContent = `${P.length} items`;
     barChart($("chart-papers"), papers, "#1f3d5c", "papers");
     barChart($("chart-cites"), cites, "#6e7b3c", "citations");

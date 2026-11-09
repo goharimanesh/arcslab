@@ -116,5 +116,19 @@ window.ARC = (function () {
     catch (e) { const t = document.createElement("textarea"); t.value = text; document.body.appendChild(t); t.select(); const ok = document.execCommand("copy"); t.remove(); return ok; }
   }
 
-  return { parseCSV, loadCSV, loadJSON, esc, list, failText, photo, photoFallback, socials, nameKey, memberIndex, profileURL, setupChrome, reveal, copy, DEFAULT_PHOTO };
+  /* ---------- which papers appear on the website ----------
+     A paper is shown when its category has show = yes in data/publication_categories.csv,
+     unless data/publication_overrides.csv says hide = yes; show = yes there forces it in. */
+  function visiblePubs(pubs, cats, overrides) {
+    const shown = {}; (cats || []).forEach(c => shown[c.id] = !/^no/i.test(c.show || "yes"));
+    const O = {}; (overrides || []).forEach(o => { if (o.key) O[o.key.toLowerCase()] = o; });
+    return pubs.map(p => {
+      const o = O[(p.doi || "").toLowerCase()] || O[(p.id || "").toLowerCase()] || {};
+      const category = o.category || p.category || "other";
+      const show = /^y/i.test(o.hide || "") ? false : /^y/i.test(o.show || "") ? true : (shown[category] ?? true);
+      return { ...p, category, type: o.type || p.type || "other", image: o.image || p.image || "", _show: show };
+    }).filter(p => p._show);
+  }
+
+  return { visiblePubs, parseCSV, loadCSV, loadJSON, esc, list, failText, photo, photoFallback, socials, nameKey, memberIndex, profileURL, setupChrome, reveal, copy, DEFAULT_PHOTO };
 })();

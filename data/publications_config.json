@@ -19,5 +19,7 @@
   "title_similarity": 0.85,
   "min_year": 2005,
   "sync_add_new": true,
-  "openalex_skip_types": ["paratext", "erratum", "editorial", "letter", "peer-review", "retraction", "supplementary-materials", "other"]
+  "openalex_skip_types": ["paratext", "erratum", "editorial", "letter", "peer-review", "retraction", "supplementary-materials", "preprint", "other"],
+  "skip_venues": ["SSRN", "Research Square", "arXiv", "bioRxiv", "medRxiv", "Preprints", "TSpace", "Zenodo", "figshare", "Kidney International Reports"],
+  "_skip_venues_help": "Papers whose journal/venue contains one of these words are never added by sync (preprint servers and repositories) and are removed if already present."
 }

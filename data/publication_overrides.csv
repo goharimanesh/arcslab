@@ -1,7 +1,9 @@
-key,category,type,image,hide,note
+key,category,type,image,hide,show,note
 # One row per correction. "key" = the DOI (e.g. 10.1007/s10846-019-01083-9) or the paper id from publications.csv.
-# Leave a column empty to keep the automatic value. hide = yes removes a paper from the website.
+# Leave a column empty to keep the automatic value. hide = yes removes a paper from the website;
+# show = yes forces a paper onto the website even if its category is not shown (see the show column in publication_categories.csv).
 # Example rows (remove the # to activate):
-# 10.1016/j.powtec.2017.05.036,thermofluids,,,,
-# goharimanesh2017optimum,optimization,,assets/images/publications/papers/bevel-gears.jpg,,
-10.56578/jemse020201,other,,,,Management study – does not fit an engineering category
+# 10.1016/j.compeleceng.2024.109380,,,,,yes,show the micro-tweezer grasping paper
+# goharimanesh2020fuzzy,,,assets/images/publications/papers/frl-robot.jpg,,,use my own figure
+# 10.1000/not.mine,,,,yes,,remove a paper that is not ours
+10.56578/jemse020201,other,,,,,Management study – does not fit an engineering category
