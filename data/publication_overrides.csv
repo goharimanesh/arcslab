@@ -1,0 +1,7 @@
+key,category,type,image,hide,note
+# One row per correction. "key" = the DOI (e.g. 10.1007/s10846-019-01083-9) or the paper id from publications.csv.
+# Leave a column empty to keep the automatic value. hide = yes removes a paper from the website.
+# Example rows (remove the # to activate):
+# 10.1016/j.powtec.2017.05.036,thermofluids,,,,
+# goharimanesh2017optimum,optimization,,assets/images/publications/papers/bevel-gears.jpg,,
+10.56578/jemse020201,other,,,,Management study – does not fit an engineering category

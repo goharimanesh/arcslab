@@ -1,377 +1,240 @@
 /* ==========================================================
-   ARCSLAB — main.js
+   main.js — builds the data-driven sections of index.html
    ----------------------------------------------------------
-   What this file does, in plain words:
-   1. Reads the four CSV files in the "data/" folder.
-   2. Turns each row into a nice "card" on the page.
-   3. Handles small things: the phone menu, the student
-      filter buttons, highlighting the current menu item,
-      and the fade-in animation.
-
-   You normally do NOT need to edit this file.
-   To change the website content, edit the CSV files.
+   Every section reads one CSV file from data/ and turns each
+   row into a card. To change the content, edit the CSV files;
+   you normally never need to edit this program.
    ========================================================== */
+(function () {
+  const { loadCSV, esc, list, failText, photo, socials, profileURL, nameKey, setupChrome, reveal } = window.ARC;
+  const $ = id => document.getElementById(id);
+  const CATEGORY_LABELS = { faculty: "Faculty", phd: "PhD Student", msc: "MSc Student", bsc: "BSc Student", alumni: "Alumni" };
+  const int = v => parseInt(v, 10) || 0;
+  let TEAM = [];
 
-/* ----------------------------------------------------------
-   SETTINGS — the only part you might want to change
-   ---------------------------------------------------------- */
-const SETTINGS = {
-  files: {
-    team:       "data/team.csv",
-    projects:   "data/projects.csv",
-    facilities: "data/facilities.csv",
-    events:     "data/events.csv",
-  },
-  // Pictures used when a CSV row has no image
-  defaultPersonPhoto:   "assets/images/people/placeholder-person.svg",
-  defaultProjectImage:  "assets/images/projects/placeholder-project.svg",
-  defaultFacilityImage: "assets/images/facilities/placeholder-facility.svg",
-  // Separator used inside a cell for lists (e.g. keywords)
-  listSeparator: ";",
-};
+  /* ---------------- People ---------------- */
+  function renderPeople(team) {
+    const cat = p => (p.category || "").toLowerCase();
+    const faculty = team.filter(p => cat(p) === "faculty");
+    const others = team.filter(p => cat(p) !== "faculty");
 
-/* Readable names for the "category" column of team.csv */
-const CATEGORY_LABELS = {
-  faculty: "Faculty",
-  postdoc: "Postdoctoral Researcher",
-  phd:     "PhD Student",
-  msc:     "MSc Student",
-  bsc:     "BSc Student",
-  alumni:  "Alumni",
-};
+    $("faculty-list").innerHTML = faculty.map(p => `
+      <article class="card faculty-card reveal">
+        <a class="photo" href="${profileURL(p.id)}" aria-label="Profile of ${esc(p.name)}">${photo(p.photo, "Photo of " + p.name)}</a>
+        <div class="body">
+          ${p.role ? `<span class="role-tag">${esc(p.role)}</span>` : ""}
+          <h3><a href="${profileURL(p.id)}">${esc(p.name)}</a></h3>
+          <p class="person-title">${esc(p.title)}</p>
+          ${p.bio ? `<p class="person-bio clamp-4">${esc(p.bio)}</p>` : ""}
+          ${p.interests ? `<div class="chips" style="margin-bottom:14px">${list(p.interests).map(i => `<span class="chip olive">${esc(i)}</span>`).join("")}</div>` : ""}
+          ${p.email ? `<a class="person-email" href="mailto:${esc(p.email)}">✉ ${esc(p.email)}</a>` : ""}
+          ${socials(p)}
+          <a class="more-link" href="${profileURL(p.id)}">Full profile &amp; publications →</a>
+        </div>
+      </article>`).join("");
 
-/* Academic / social profile links shown under each person.
-   "column" = the column name in team.csv, "label" = text on the button.
-   Leave a cell empty in the CSV and that button is simply not shown. */
-const PROFILE_LINKS = [
-  { column: "scholar",      label: "Scholar",      icon: "scholar" },
-  { column: "scopus",       label: "Scopus",       icon: "scopus" },
-  { column: "orcid",        label: "ORCID",        icon: "orcid" },
-  { column: "researchgate", label: "ResearchGate", icon: "rg" },
-  { column: "linkedin",     label: "LinkedIn",     icon: "linkedin" },
-  { column: "github",       label: "GitHub",       icon: "github" },
-  { column: "website",      label: "Website",      icon: "web" },
-];
+    const box = $("student-list");
+    box.innerHTML = others.length ? others.map(p => {
+      const c = cat(p);
+      return `
+      <article class="card student-card reveal" data-category="${esc(c)}">
+        ${photo(p.photo, "Photo of " + p.name)}
+        <h4><a class="stretched" href="${profileURL(p.id)}">${esc(p.name)}</a></h4>
+        <p class="person-title">${esc(p.title || CATEGORY_LABELS[c] || c)}</p>
+        ${p.research_topic ? `<p class="topic">${esc(p.research_topic)}</p>` : ""}
+        <span class="card-more">View profile →</span>
+      </article>`;
+    }).join("") : `<p class="empty">Student profiles coming soon.</p>`;
 
-/* Tiny inline icons (simple shapes, no external files needed) */
-const ICONS = {
-  scholar:  '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3 1 9l11 6 9-4.9V17h2V9z"/><path d="M5 13.2V17c0 1.7 3.1 3 7 3s7-1.3 7-3v-3.8l-7 3.8z"/></svg>',
-  scopus:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M17 6.5c-1.2-1-2.8-1.5-4.5-1.5C9.5 5 7 6.8 7 9c0 5 10 3 10 8 0 2.2-2.5 4-5.5 4-1.9 0-3.6-.6-4.8-1.7"/></svg>',
-  orcid:    '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="currentColor"/><path fill="#fff" d="M7.5 9.5h1.6V17H7.5zm.8-3a1 1 0 1 1 0 2 1 1 0 0 1 0-2zM11 9.5h3c2.3 0 3.8 1.5 3.8 3.75S16.3 17 14 17h-3zm1.6 1.4v4.7H14c1.4 0 2.2-.9 2.2-2.35S15.4 10.9 14 10.9z"/></svg>',
-  rg:       '<svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="2" width="20" height="20" rx="3"/><text x="12" y="16.5" font-size="10" font-family="Arial" font-weight="700" text-anchor="middle" fill="#fff">RG</text></svg>',
-  linkedin: '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9.5h4V21H3zM9.5 9.5h3.8v1.6h.05c.53-1 1.83-2 3.77-2 4 0 4.78 2.6 4.78 6V21h-4v-5.2c0-1.25 0-2.85-1.75-2.85S14 14.3 14 15.7V21h-4z"/></svg>',
-  github:   '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1.5A10.5 10.5 0 0 0 8.7 22c.5.1.7-.2.7-.5v-1.9c-2.9.6-3.5-1.3-3.5-1.3-.5-1.2-1.2-1.5-1.2-1.5-.9-.7.1-.6.1-.6 1 .1 1.6 1.1 1.6 1.1.9 1.6 2.5 1.1 3.1.9.1-.7.4-1.1.7-1.4-2.3-.3-4.8-1.2-4.8-5.2 0-1.1.4-2 1.1-2.8-.1-.3-.5-1.4.1-2.8 0 0 .9-.3 2.9 1.1a10 10 0 0 1 5.3 0c2-1.4 2.9-1.1 2.9-1.1.6 1.4.2 2.5.1 2.8.7.8 1.1 1.7 1.1 2.8 0 4-2.5 4.9-4.8 5.2.4.3.7 1 .7 2v3c0 .3.2.6.7.5A10.5 10.5 0 0 0 12 1.5z"/></svg>',
-  web:      '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9.5"/><path d="M2.5 12h19M12 2.5c2.6 2.6 4 6 4 9.5s-1.4 6.9-4 9.5c-2.6-2.6-4-6-4-9.5s1.4-6.9 4-9.5z"/></svg>',
-  mail:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2.5" y="4.5" width="19" height="15" rx="2"/><path d="m3 6 9 7 9-7"/></svg>',
-};
-
-/* ==========================================================
-   PART 1 — CSV READER
-   Reads a CSV text and returns a list of objects, e.g.
-   [{name: "Ali", category: "msc", ...}, ...]
-   Supports commas and line breaks inside "quoted text".
-   ========================================================== */
-function parseCSV(text) {
-  // Remove an invisible "BOM" character that Excel sometimes adds
-  text = text.replace(/^﻿/, "");
-
-  const rows = [];
-  let row = [], field = "", inQuotes = false;
-
-  for (let i = 0; i < text.length; i++) {
-    const c = text[i];
-    if (inQuotes) {
-      if (c === '"' && text[i + 1] === '"') { field += '"'; i++; }   // "" inside quotes = one "
-      else if (c === '"') { inQuotes = false; }
-      else { field += c; }
-    } else {
-      if (c === '"') inQuotes = true;
-      else if (c === ",") { row.push(field); field = ""; }
-      else if (c === "\n" || c === "\r") {
-        if (c === "\r" && text[i + 1] === "\n") i++;
-        row.push(field); rows.push(row); row = []; field = "";
-      } else field += c;
-    }
-  }
-  if (field !== "" || row.length) { row.push(field); rows.push(row); }
-
-  // First row = column names; skip empty lines and lines starting with #
-  const header = rows.shift().map(h => h.trim().toLowerCase());
-  return rows
-    .filter(r => r.some(cell => cell.trim() !== "") && !r[0].trim().startsWith("#"))
-    .map(r => {
-      const obj = {};
-      header.forEach((h, idx) => { obj[h] = (r[idx] || "").trim(); });
-      return obj;
-    });
-}
-
-/* Downloads one CSV file and returns its rows */
-async function loadCSV(path) {
-  const response = await fetch(path, { cache: "no-cache" });
-  if (!response.ok) throw new Error(`Could not load ${path} (${response.status})`);
-  return parseCSV(await response.text());
-}
-
-/* ==========================================================
-   PART 2 — SMALL HELPERS
-   ========================================================== */
-
-/* Makes text safe to put inside HTML (prevents broken layout) */
-function esc(value) {
-  return String(value ?? "")
-    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-}
-
-/* Splits "a; b; c" into ["a","b","c"] */
-function splitList(value) {
-  return (value || "").split(SETTINGS.listSeparator).map(s => s.trim()).filter(Boolean);
-}
-
-/* Builds the row of profile buttons (Scholar, Scopus, ORCID, ...) */
-function profileButtons(person) {
-  const links = PROFILE_LINKS
-    .filter(p => person[p.column])
-    .map(p => `<a href="${esc(person[p.column])}" target="_blank" rel="noopener" title="${p.label}">${ICONS[p.icon]}${p.label}</a>`);
-  return links.length ? `<div class="socials">${links.join("")}</div>` : "";
-}
-
-/* Shows a friendly message inside a section */
-function showMessage(containerId, message) {
-  const el = document.getElementById(containerId);
-  if (el) el.innerHTML = `<p class="empty">${esc(message)}</p>`;
-}
-
-/* Turns "2026-12-05" into a Date object */
-function toDate(str) {
-  const [y, m, d] = (str || "").split("-").map(Number);
-  return y ? new Date(y, (m || 1) - 1, d || 1) : null;
-}
-
-const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-
-/* ==========================================================
-   PART 3 — RENDERING EACH SECTION
-   ========================================================== */
-
-/* ---------- PEOPLE (team.csv) ---------- */
-function renderPeople(team) {
-  const faculty  = team.filter(p => p.category.toLowerCase() === "faculty");
-  const students = team.filter(p => p.category.toLowerCase() !== "faculty");
-
-  // Large cards for faculty / founders
-  document.getElementById("faculty-list").innerHTML = faculty.map(p => `
-    <article class="card faculty-card reveal">
-      <div class="photo">
-        <img src="${esc(p.photo || SETTINGS.defaultPersonPhoto)}" alt="Photo of ${esc(p.name)}" loading="lazy"
-             onerror="this.src='${SETTINGS.defaultPersonPhoto}'">
-      </div>
-      <div class="body">
-        ${p.role ? `<span class="role-tag">${esc(p.role)}</span>` : ""}
-        <h3>${esc(p.name)}</h3>
-        <p class="person-title">${esc(p.title)}</p>
-        ${p.bio ? `<p class="person-bio">${esc(p.bio)}</p>` : ""}
-        ${p.interests ? `<div class="chips" style="margin-bottom:14px">${splitList(p.interests).map(i => `<span class="chip olive">${esc(i)}</span>`).join("")}</div>` : ""}
-        ${p.email ? `<a class="person-email" href="mailto:${esc(p.email)}">✉ ${esc(p.email)}</a>` : ""}
-        ${profileButtons(p)}
-      </div>
-    </article>`).join("");
-
-  // Small cards for students and alumni
-  const list = document.getElementById("student-list");
-  if (!students.length) { showMessage("student-list", "Student profiles coming soon."); return; }
-
-  list.innerHTML = students.map(p => {
-    const cat = p.category.toLowerCase();
-    return `
-    <article class="card student-card reveal" data-category="${esc(cat)}">
-      <img src="${esc(p.photo || SETTINGS.defaultPersonPhoto)}" alt="Photo of ${esc(p.name)}" loading="lazy"
-           onerror="this.src='${SETTINGS.defaultPersonPhoto}'">
-      <h4>${esc(p.name)}</h4>
-      <p class="person-title">${esc(p.title || CATEGORY_LABELS[cat] || cat)}</p>
-      ${p.research_topic ? `<p class="topic">${esc(p.research_topic)}</p>` : ""}
-      ${profileButtons(p)}
-    </article>`;
-  }).join("");
-
-  // Filter buttons (All / PhD / MSc / BSc / Alumni)
-  document.querySelectorAll(".filter-btn").forEach(btn => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
-      btn.classList.add("active");
+    document.querySelectorAll("#people .filter-btn").forEach(btn => {
       const f = btn.dataset.filter;
-      list.querySelectorAll(".student-card").forEach(card => {
-        card.style.display = (f === "all" || card.dataset.category === f) ? "" : "none";
+      if (f !== "all" && !others.some(s => cat(s) === f)) btn.style.display = "none";
+      btn.addEventListener("click", () => {
+        document.querySelectorAll("#people .filter-btn").forEach(b => b.classList.toggle("active", b === btn));
+        box.querySelectorAll(".student-card").forEach(card => card.style.display = (f === "all" || card.dataset.category === f) ? "" : "none");
       });
     });
-  });
+    $("stat-people").textContent = team.filter(p => cat(p) !== "alumni").length;
+  }
 
-  // Hide filter buttons that have no students
-  document.querySelectorAll(".filter-btn").forEach(btn => {
-    const f = btn.dataset.filter;
-    if (f !== "all" && !students.some(s => s.category.toLowerCase() === f)) btn.style.display = "none";
-  });
-
-  document.getElementById("stat-people").textContent = team.filter(p => p.category.toLowerCase() !== "alumni").length;
-}
-
-/* ---------- PROJECTS (projects.csv) ---------- */
-function renderProjects(projects) {
-  if (!projects.length) { showMessage("project-list", "Projects will be announced soon."); return; }
-
-  // Order: ongoing first, then planned, then completed
-  const order = { ongoing: 0, planned: 1, completed: 2 };
-  projects.sort((a, b) => (order[a.status.toLowerCase()] ?? 9) - (order[b.status.toLowerCase()] ?? 9));
-
-  document.getElementById("project-list").innerHTML = projects.map(p => {
-    const status = (p.status || "ongoing").toLowerCase();
-    const title = p.link
-      ? `<a href="${esc(p.link)}" target="_blank" rel="noopener">${esc(p.title)}</a>`
-      : esc(p.title);
-    return `
-    <article class="card project-card reveal">
-      <div class="thumb">
-        <img src="${esc(p.image || SETTINGS.defaultProjectImage)}" alt="" loading="lazy"
-             onerror="this.src='${SETTINGS.defaultProjectImage}'">
-      </div>
-      <div class="body">
-        <span class="status status-${esc(status)}">${esc(status)}</span>
-        <h3>${title}</h3>
-        <p>${esc(p.summary)}</p>
-        ${p.keywords ? `<div class="chips">${splitList(p.keywords).map(k => `<span class="chip">${esc(k)}</span>`).join("")}</div>` : ""}
-        <div class="project-meta">
-          ${p.student    ? `<div><b>Lead researcher:</b> ${esc(p.student)}</div>` : ""}
-          ${p.supervisor ? `<div><b>Supervisor:</b> ${esc(p.supervisor)}</div>` : ""}
-          ${p.start      ? `<div><b>Started:</b> ${esc(p.start)}</div>` : ""}
+  /* ---------------- Projects ---------------- */
+  function renderProjects(projects) {
+    const order = { ongoing: 0, planned: 1, completed: 2 };
+    projects.sort((a, b) => (order[(a.status || "").toLowerCase()] ?? 9) - (order[(b.status || "").toLowerCase()] ?? 9));
+    $("project-list").innerHTML = projects.map(p => {
+      const status = (p.status || "ongoing").toLowerCase();
+      const title = p.link ? `<a href="${esc(p.link)}" target="_blank" rel="noopener">${esc(p.title)}</a>` : esc(p.title);
+      const student = p.student_id ? `<a href="${profileURL(p.student_id)}">${esc(p.student)}</a>` : esc(p.student);
+      return `
+      <article class="card project-card reveal" data-kind="${esc(p.kind)}">
+        <div class="thumb">${photo(p.image || "assets/images/projects/placeholder-project.svg", "")}</div>
+        <div class="body">
+          <div class="tag-row"><span class="status status-${esc(status)}">${esc(status)}</span>${p.kind ? `<span class="kind">${esc(p.kind)}</span>` : ""}</div>
+          <h3>${title}</h3>
+          <p>${esc(p.summary)}</p>
+          ${p.keywords ? `<div class="chips">${list(p.keywords).map(k => `<span class="chip">${esc(k)}</span>`).join("")}</div>` : ""}
+          <div class="project-meta">
+            ${p.student ? `<div><b>Researcher:</b> ${student}</div>` : ""}
+            ${p.supervisor ? `<div><b>Supervisor:</b> ${esc(p.supervisor.replace(/;/g, ","))}</div>` : ""}
+            ${p.start ? `<div><b>Started:</b> ${esc(p.start)}</div>` : ""}
+          </div>
         </div>
-      </div>
-    </article>`;
-  }).join("");
+      </article>`;
+    }).join("");
+    document.querySelectorAll("#project-filters .filter-btn").forEach(btn => btn.addEventListener("click", () => {
+      document.querySelectorAll("#project-filters .filter-btn").forEach(b => b.classList.toggle("active", b === btn));
+      const f = btn.dataset.filter;
+      document.querySelectorAll("#project-list .project-card").forEach(c => c.style.display = f === "all" || c.dataset.kind === f ? "" : "none");
+    }));
+    $("stat-projects").textContent = projects.filter(p => (p.status || "").toLowerCase() === "ongoing").length;
+  }
 
-  document.getElementById("stat-projects").textContent =
-    projects.filter(p => (p.status || "").toLowerCase() === "ongoing").length;
-}
+  /* ---------------- Publications teaser ---------------- */
+  function renderPubTeaser(pubs, overrides) {
+    const hidden = new Set(overrides.filter(o => /^y/i.test(o.hide)).map(o => o.key.toLowerCase()));
+    pubs = pubs.filter(p => !hidden.has((p.doi || "").toLowerCase()) && !hidden.has(p.id.toLowerCase()));
+    const cites = pubs.map(p => int(p.citations)).sort((a, b) => b - a);
+    const h = cites.filter((c, i) => c >= i + 1).length;
+    const total = cites.reduce((a, b) => a + b, 0);
+    const years = pubs.map(p => int(p.year)).filter(Boolean);
+    $("pub-stats").innerHTML = [
+      [pubs.length, "Papers & books"], [total.toLocaleString("en"), "Citations"], [h, "h-index (lab)"], [Math.min(...years) + "–" + Math.max(...years), "Years"],
+    ].map(([v, l]) => `<div class="stat-tile"><strong>${v}</strong><span>${l}</span></div>`).join("");
+    const item = p => `<li><a href="${esc(p.link || (p.doi ? "https://doi.org/" + p.doi : "publications.html"))}" target="_blank" rel="noopener">${esc(p.title)}</a>
+      <span>${esc(p.venue)} · ${esc(p.year)}${int(p.citations) ? ` · <b>${p.citations}</b> citations` : ""}</span></li>`;
+    $("pub-top").innerHTML = [...pubs].sort((a, b) => int(b.citations) - int(a.citations)).slice(0, 4).map(item).join("");
+    $("pub-latest").innerHTML = [...pubs].sort((a, b) => int(b.year) - int(a.year) || int(b.citations) - int(a.citations)).slice(0, 4).map(item).join("");
+    $("stat-papers").textContent = pubs.length;
+    $("stat-citations").textContent = total.toLocaleString("en");
+    return pubs;
+  }
 
-/* ---------- FACILITIES (facilities.csv) ---------- */
-function renderFacilities(items) {
-  if (!items.length) { showMessage("facility-list", "Facility list coming soon."); return; }
-
-  document.getElementById("facility-list").innerHTML = items.map(f => `
-    <article class="card facility-card reveal">
-      <div class="thumb">
-        <img src="${esc(f.image || SETTINGS.defaultFacilityImage)}" alt="" loading="lazy"
-             onerror="this.src='${SETTINGS.defaultFacilityImage}'">
-      </div>
-      <div class="body">
-        ${f.category ? `<span class="category">${esc(f.category)}</span>` : ""}
-        <h3>${esc(f.name)}</h3>
-        <p>${esc(f.description)}</p>
-      </div>
-    </article>`).join("");
-
-  document.getElementById("stat-facilities").textContent = items.length;
-}
-
-/* ---------- EVENTS (events.csv) ----------
-   Events are split automatically into "Upcoming" and "Past"
-   using today's date — no need to move rows yourself.       */
-function renderEvents(events) {
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-
-  const withDates = events
-    .map(e => ({ ...e, _start: toDate(e.date), _end: toDate(e.end_date) || toDate(e.date) }))
-    .filter(e => e._start);
-
-  const upcoming = withDates.filter(e => e._end >= today).sort((a, b) => a._start - b._start);
-  const past     = withDates.filter(e => e._end <  today).sort((a, b) => b._start - a._start).slice(0, 6);
-
-  const card = e => {
-    const range = e.end_date && e.end_date !== e.date
-      ? ` – ${e._end.getDate()} ${MONTHS[e._end.getMonth()]} ${e._end.getFullYear()}` : ` ${e._start.getFullYear()}`;
-    const title = e.link ? `<a href="${esc(e.link)}" target="_blank" rel="noopener">${esc(e.title)}</a>` : esc(e.title);
-    return `
-    <article class="card event reveal">
-      <div class="event-date">
-        <span class="d">${e._start.getDate()}</span>
-        <span class="m">${MONTHS[e._start.getMonth()]} ${String(e._start.getFullYear()).slice(2)}</span>
-      </div>
-      <div>
-        <h3>${title}</h3>
-        ${e.description ? `<p>${esc(e.description)}</p>` : ""}
-        <div class="where">📍 ${esc(e.location || "TBA")} · ${e._start.getDate()} ${MONTHS[e._start.getMonth()]}${range}</div>
-      </div>
-      ${e.type ? `<span class="event-type">${esc(e.type)}</span>` : ""}
-    </article>`;
-  };
-
-  document.getElementById("events-upcoming").innerHTML =
-    upcoming.length ? upcoming.map(card).join("") : `<p class="empty">No upcoming events at the moment.</p>`;
-  document.getElementById("events-past").innerHTML =
-    past.length ? past.map(card).join("") : `<p class="empty">No past events yet.</p>`;
-}
-
-/* ==========================================================
-   PART 4 — PAGE BEHAVIOUR (menu, highlighting, animation)
-   ========================================================== */
-function setupNavigation() {
-  const toggle = document.querySelector(".nav-toggle");
-  const links  = document.querySelector(".nav-links");
-
-  // Phone menu open / close
-  toggle.addEventListener("click", () => {
-    const open = links.classList.toggle("open");
-    toggle.setAttribute("aria-expanded", open);
-  });
-  links.querySelectorAll("a").forEach(a => a.addEventListener("click", () => links.classList.remove("open")));
-
-  // Highlight the menu item of the section currently on screen
-  const sections = document.querySelectorAll("main section[id]");
-  const spy = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        links.querySelectorAll("a").forEach(a =>
-          a.classList.toggle("active", a.getAttribute("href") === "#" + entry.target.id));
-      }
+  /* ---------------- Teaching ---------------- */
+  function renderCourses(courses) {
+    $("course-list").innerHTML = courses.map(c => {
+      const img = `assets/images/teaching/${esc(c.id)}.svg`;
+      const link = c.link ? `<a class="btn btn-primary btn-sm" href="${esc(c.link)}" target="_blank" rel="noopener">Open course hub ↗</a>` : `<span class="soon">Hub link coming soon</span>`;
+      return `
+      <article class="card course-card reveal">
+        <div class="thumb">${photo(img, "")}</div>
+        <div class="body">
+          <div class="tag-row"><span class="kind">${esc(c.level)}</span>${c.kind && c.kind.toLowerCase() !== (c.level || "").toLowerCase() ? `<span class="kind">${esc(c.kind)}</span>` : ""}</div>
+          <h3>${esc(c.title)}</h3>
+          ${c.title_fa ? `<p class="fa" lang="fa" dir="rtl">${esc(c.title_fa)}</p>` : ""}
+          <p>${esc(c.description)}</p>
+          <p class="instructor">${esc(c.instructor)}</p>
+          ${link}
+        </div>
+      </article>`;
+    }).join("");
+    const btn = $("academy-toggle"), frame = $("academy-frame");
+    btn.addEventListener("click", () => {
+      const open = frame.hidden;
+      if (open && !frame.innerHTML) frame.innerHTML = `<iframe src="https://goharimanesh.github.io/aparat-academy/" title="Goharimanesh Video Academy" loading="lazy"></iframe>`;
+      frame.hidden = !open; btn.setAttribute("aria-expanded", open); btn.textContent = open ? "Close ▴" : "Browse here ▾";
     });
-  }, { rootMargin: "-45% 0px -50% 0px" });
-  sections.forEach(s => spy.observe(s));
-}
+  }
 
-/* Gentle fade-in of cards as you scroll */
-function setupReveal() {
-  const io = new IntersectionObserver(entries => {
-    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add("visible"); io.unobserve(e.target); } });
-  }, { threshold: 0.1 });
-  document.querySelectorAll(".reveal:not(.visible)").forEach(el => io.observe(el));
-}
+  /* ---------------- Facilities ---------------- */
+  function renderFacilities(items) {
+    $("facility-list").innerHTML = items.map(f => `
+      <article class="card facility-card reveal">
+        <div class="thumb">${photo(f.image || "assets/images/facilities/placeholder-facility.svg", "")}</div>
+        <div class="body">
+          ${f.category ? `<span class="category">${esc(f.category)}</span>` : ""}
+          <h3>${esc(f.name)}</h3>
+          <p>${esc(f.description)}</p>
+        </div>
+      </article>`).join("");
+  }
 
-/* ==========================================================
-   PART 5 — START EVERYTHING WHEN THE PAGE LOADS
-   ========================================================== */
-document.addEventListener("DOMContentLoaded", async () => {
-  document.getElementById("year").textContent = new Date().getFullYear();
-  setupNavigation();
+  /* ---------------- Collaborations ---------------- */
+  function renderCollabs(rows, pubs) {
+    $("collab-list").innerHTML = rows.map(c => {
+      const key = nameKey(c.match_author || "");
+      const joint = c.match_author ? pubs.filter(p => list(p.authors).some(a => nameKey(a) === key)) : [];
+      return `
+      <article class="card collab-card reveal">
+        <div class="collab-badge">${esc(c.short || c.name.slice(0, 4))}</div>
+        <div class="body">
+          <h3>${esc(c.name)}</h3>
+          <p class="person-title">${esc(c.institution)}${c.director ? ` · Director: ${esc(c.director)}` : ""}</p>
+          <p>${esc(c.description)}</p>
+          ${joint.length ? `<p class="joint"><b>${joint.length}</b> joint publications —
+            <a href="publications.html?q=${encodeURIComponent(c.match_author.split(" ")[0])}">see them →</a></p>` : ""}
+          ${c.link ? `<a class="btn btn-ghost btn-sm" href="${esc(c.link)}" target="_blank" rel="noopener">Visit ${esc(c.short || "lab")} ↗</a>` : ""}
+        </div>
+      </article>`;
+    }).join("");
+  }
 
-  // Each section loads on its own, so one broken CSV doesn't break the others
-  const jobs = [
-    { file: SETTINGS.files.team,       render: renderPeople,     box: "student-list"   },
-    { file: SETTINGS.files.projects,   render: renderProjects,   box: "project-list"   },
-    { file: SETTINGS.files.facilities, render: renderFacilities, box: "facility-list"  },
-    { file: SETTINGS.files.events,     render: renderEvents,     box: "events-upcoming"},
-  ];
+  /* ---------------- Benefactors ---------------- */
+  function renderBenefactors(rows) {
+    $("benefactor-list").innerHTML = rows.map(b => {
+      const mem = /^y/i.test(b.in_memoriam);
+      return `
+      <article class="card benefactor-card ${mem ? "memoriam" : ""} reveal">
+        ${photo(b.photo, b.name)}
+        <div class="body">
+          ${mem ? `<span class="memo">In loving memory</span>` : ""}
+          <h3>${mem ? "The late " : ""}${esc(b.name)}</h3>
+          <p>${esc(b.contribution)}</p>
+        </div>
+      </article>`;
+    }).join("");
+  }
 
-  await Promise.all(jobs.map(async job => {
+  /* ---------------- News & events ---------------- */
+  function renderEvents(events) {
+    const M = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const d = s => { const [y, m, dd] = (s || "").split("-").map(Number); return y ? new Date(y, (m || 1) - 1, dd || 1) : null; };
+    const today = new Date(); today.setHours(0, 0, 0, 0);
+    const ev = events.map(e => ({ ...e, _s: d(e.date), _e: d(e.end_date) || d(e.date) })).filter(e => e._s);
+    const card = e => `
+      <article class="card event reveal">
+        <div class="event-date"><span class="d">${e._s.getDate()}</span><span class="m">${M[e._s.getMonth()]} ${String(e._s.getFullYear()).slice(2)}</span></div>
+        <div><h3>${e.link ? `<a href="${esc(e.link)}" target="_blank" rel="noopener">${esc(e.title)}</a>` : esc(e.title)}</h3>
+          ${e.description ? `<p>${esc(e.description)}</p>` : ""}
+          <div class="where">📍 ${esc(e.location || "TBA")}</div></div>
+        ${e.type ? `<span class="event-type">${esc(e.type)}</span>` : ""}
+      </article>`;
+    const up = ev.filter(e => e._e >= today).sort((a, b) => a._s - b._s);
+    const past = ev.filter(e => e._e < today).sort((a, b) => b._s - a._s).slice(0, 6);
+    $("events-upcoming").innerHTML = up.length ? up.map(card).join("") : `<p class="empty">No upcoming events at the moment.</p>`;
+    $("events-past").innerHTML = past.length ? past.map(card).join("") : `<p class="empty">No past events yet.</p>`;
+  }
+
+  /* ---------------- highlight the current menu item ---------------- */
+  function scrollSpy() {
+    const links = document.querySelectorAll(".nav-links a");
+    const spy = new IntersectionObserver(es => es.forEach(e => {
+      if (e.isIntersecting) links.forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#" + e.target.id));
+    }), { rootMargin: "-45% 0px -50% 0px" });
+    document.querySelectorAll("main section[id]").forEach(s => spy.observe(s));
+  }
+
+  /* ---------------- start ---------------- */
+  document.addEventListener("DOMContentLoaded", async () => {
+    setupChrome(); scrollSpy();
+    const safe = async (file, fn, box) => {
+      try { return await fn(await loadCSV(file)); }
+      catch (err) { console.error(err); if (box && $(box)) $(box).innerHTML = `<p class="empty">${esc(failText(file))}</p>`; return null; }
+    };
+    TEAM = (await safe("data/team.csv", t => { renderPeople(t); return t; }, "student-list")) || [];
+    let pubs = [];
     try {
-      job.render(await loadCSV(job.file));
-    } catch (err) {
-      console.error(err);
-      const hint = location.protocol === "file:"
-        ? "Data cannot load when the page is opened directly from disk. Use GitHub Pages or a local server (see README)."
-        : `Could not load ${job.file}.`;
-      showMessage(job.box, hint);
-    }
-  }));
-
-  setupReveal();
-});
+      const [p, o] = await Promise.all([loadCSV("data/publications.csv"), loadCSV("data/publication_overrides.csv").catch(() => [])]);
+      pubs = renderPubTeaser(p, o);
+    } catch (e) { console.error(e); $("pub-top").innerHTML = `<li class="empty">${esc(failText("data/publications.csv"))}</li>`; }
+    await Promise.all([
+      safe("data/projects.csv", renderProjects, "project-list"),
+      safe("data/courses.csv", renderCourses, "course-list"),
+      safe("data/facilities.csv", renderFacilities, "facility-list"),
+      safe("data/collaborations.csv", rows => renderCollabs(rows, pubs), "collab-list"),
+      safe("data/benefactors.csv", renderBenefactors, "benefactor-list"),
+      safe("data/events.csv", renderEvents, "events-upcoming"),
+    ]);
+    reveal();
+    if (location.hash) { const t = document.querySelector(location.hash); if (t) t.scrollIntoView(); }
+  });
+})();

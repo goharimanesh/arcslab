@@ -1,0 +1,23 @@
+{
+  "_help": "Settings for scripts/publications.py. Edit with care: keep the JSON format (quotes, commas).",
+  "authors": [
+    {
+      "id": "masoud-gohari-manesh",
+      "name": "Masoud Goharimanesh",
+      "orcid": "0000-0001-7527-1014",
+      "scopus_id": "37661348900",
+      "openalex_id": ""
+    },
+    {
+      "id": "ali-koochi",
+      "name": "Ali Koochi",
+      "orcid": "0000-0003-2260-2638",
+      "scopus_id": "36613214200",
+      "openalex_id": ""
+    }
+  ],
+  "title_similarity": 0.85,
+  "min_year": 2005,
+  "sync_add_new": true,
+  "openalex_skip_types": ["paratext", "erratum", "editorial", "letter", "peer-review", "retraction", "supplementary-materials", "other"]
+}

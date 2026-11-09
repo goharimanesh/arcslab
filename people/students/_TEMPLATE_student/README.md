@@ -1,28 +1,23 @@
 # Student folder template
 
-Copy this whole folder and rename the copy to the student's ID, for example:
+1. Copy this folder and rename it with the student's id, e.g. `people/students/msc-1405-Ahmadi/`.
+2. Put a square photo named `photo.jpg` in it (≥ 400 × 400 px). Until then the site shows `photo.svg`
+   (a placeholder with the student's name — create one by copying this folder's photo.svg, or leave it out
+   and the general placeholder is used).
+3. Add one row to `data/team.csv`. Important columns:
 
-```
-people/students/msc-1405-ahmadi/
-```
+| column | example |
+|---|---|
+| id | `msc-1405-Ahmadi` (same as the folder name) |
+| name | `Ali Ahmadi` |
+| category | `msc`, `bsc`, `phd` or `alumni` |
+| photo | `people/students/msc-1405-Ahmadi/photo.jpg` |
+| bio | 1–3 sentences about the student's work |
+| research_topic | one line |
+| skills | `SOFA; 3D printing; Python` |
+| pub_names | how the name appears in papers, e.g. `Ahmadi A.` — fill only once the student has a paper, and check it does not match another author |
+| scholar, orcid, linkedin, github … | full links (optional) |
 
-## What goes in this folder
+4. Add the student's project to `data/projects.csv` with `student_id` = the same id — it then appears on the profile.
 
-| File | Purpose |
-|------|---------|
-| `photo.jpg` | Square profile photo (at least 400×400 px). Replace `photo.svg`. |
-| `cv.pdf` | (optional) Short CV |
-| `README.md` | Notes: thesis title, supervisor, start date, contact |
-
-## Then add one row to `data/team.csv`
-
-```
-msc-1405-ahmadi,Ali Ahmadi,msc,,MSc Student,people/students/msc-1405-ahmadi/photo.jpg,ali@example.com,,Thesis topic here,,https://scholar.google.com/...,,,,https://www.linkedin.com/in/...,https://github.com/...,
-```
-
-`category` must be one of: `phd`, `msc`, `bsc`, `alumni`.
-When a student graduates, just change `msc` → `alumni` (and optionally move the folder to `people/alumni/`).
-
----
-Student: _name_  · Degree: _MSc / BSc_ · Supervisor: _name_ · Start: _year_
-Thesis / project: _title_
+The profile page is created automatically: `profile.html?id=msc-1405-Ahmadi`.

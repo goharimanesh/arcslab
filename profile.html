@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<!--
+  ARCSLAB — Member profile page.  One page for everybody: profile.html?id=<id from data/team.csv>
+  Content comes from data/team.csv (bio, research_topic, skills, links…), data/projects.csv
+  (student_id / supervisor) and data/publications.csv (authors matched with the pub_names column).
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile | ARCSLAB</title>
+  <meta name="description" content="Member profile — ARCSLAB, University of Torbat Heydarieh.">
+  <link rel="icon" type="image/svg+xml" href="assets/images/logo/favicon.svg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header" id="top">
+    <nav class="nav container" aria-label="Main navigation">
+      <a href="index.html#home" class="brand" aria-label="ARCSLAB home">
+        <img src="assets/images/logo/arcslab-logo.svg" alt="" width="34" height="34">
+        <span>ARCS<b>LAB</b></span>
+      </a>
+      <button class="nav-toggle" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      <ul class="nav-links">
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="index.html#people" class="active">People</a></li>
+        <li><a href="index.html#research">Research</a></li>
+        <li><a href="publications.html">Publications</a></li>
+        <li><a href="index.html#teaching">Teaching</a></li>
+        <li><a href="index.html#facilities">Facilities</a></li>
+        <li><a href="index.html#news">News</a></li>
+        <li><a href="index.html#contact" class="nav-cta">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="profile">
+    <section class="page-hero"><div class="container"><p class="empty">Loading profile…</p></div></section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>© <span id="year"></span> ARCSLAB · Advanced Robotics and Control Systems Laboratory · University of Torbat Heydarieh</p>
+      <a href="#top" class="to-top">Back to top ↑</a>
+    </div>
+  </footer>
+  <script src="js/common.js"></script>
+  <script src="js/profile.js"></script>
+</body>
+</html>

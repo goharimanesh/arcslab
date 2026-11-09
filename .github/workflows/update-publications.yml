@@ -1,0 +1,59 @@
+# Updates data/publications.csv from OpenAlex once a week and commits the result.
+# Also runs when the category rules, overrides or import files change, and can be started by hand:
+# GitHub → Actions → "Update publications" → Run workflow.
+name: Update publications
+
+on:
+  schedule:
+    - cron: "17 2 * * 1"        # every Monday 02:17 UTC (05:47 Tehran)
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "data/publication_categories.csv"
+      - "data/publication_overrides.csv"
+      - "data/publications_config.json"
+      - "data/imports/**"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-publications
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Check sources
+        run: python scripts/publications.py probe
+        continue-on-error: true
+
+      - name: Sync from OpenAlex
+        # Optional: add a repository secret OPENALEX_MAILTO (Settings → Secrets → Actions)
+        env:
+          OPENALEX_MAILTO: ${{ secrets.OPENALEX_MAILTO }}
+        run: python scripts/publications.py sync || echo "sync skipped (source unreachable)"
+
+      - name: Re-classify (rules / overrides)
+        run: python scripts/publications.py classify
+
+      - name: Commit changes
+        run: |
+          git config user.name  "arcslab-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/publications.csv data/publications_meta.json
+          if git diff --cached --quiet; then
+            echo "No changes."
+          else
+            git commit -m "Update publications ($(date -u +%Y-%m-%d))"
+            git pull --rebase --autostash
+            git push
+          fi

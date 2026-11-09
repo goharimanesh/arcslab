@@ -1,6 +1,9 @@
 name,category,description,image
-Continuum Robot Test Bench,Experimental Setup,"Modular platform for multi-segment tendon-driven continuum arms with motorized tendon actuation and load cells.",assets/images/facilities/test-bench.svg
-Soft Robotics Fabrication Corner,Fabrication,"Silicone casting, vacuum degassing and 3D-printed molds for producing soft actuators and grippers.",assets/images/facilities/fabrication.svg
-Motion Capture & Vision,Sensing,"Camera-based tracking for measuring the shape and tip position of flexible robots in real time.",assets/images/facilities/vision.svg
-Embedded Control Stations,Electronics,"Microcontroller and real-time control boards, motor drivers, pressure regulators and data acquisition.",assets/images/facilities/electronics.svg
-Simulation & Computing,Software,"Workstations with MATLAB/Simulink, ROS, SOFA and Python for modeling, simulation and control design.",assets/images/facilities/computing.svg
+Two FDM 3D Printers,Fabrication,"Two 3D printers for PLA, Soft PLA and other filaments — one of them funded by the lab's benefactors.",assets/images/facilities/3d-printers.svg
+Complete Fabrication Toolset,Fabrication,"A full set of hand and power tools, silicone casting and molding equipment for building robots and prototypes.",assets/images/facilities/tools.svg
+SCARA Robot,Robots,"A SCARA manipulator for teaching and research in kinematics, trajectory planning and control.",assets/images/facilities/scara.svg
+Three-Link Robot Arm,Robots,"A planar three-link (3R) manipulator for kinematics, dynamics and control experiments.",assets/images/facilities/three-link.svg
+Space Robot Platform,Robots,"A space-robot setup for studying the dynamics and control of manipulators on a moving base.",assets/images/facilities/space-robot.svg
+Continuum & Soft Robot Prototypes,Experimental Setup,"Tendon-driven, fork-joint and pneumatic (PneuNet) robots built by lab members.",assets/images/facilities/test-bench.svg
+Workbenches & Electronics,Electronics,"Workbenches with microcontrollers, motor drivers, pressure regulators, power supplies and measurement tools.",assets/images/facilities/workbench.svg
+Simulation & Computing,Software,"MATLAB/Simulink, Python, SOFA (SoftRobots), MuJoCo and ROS for modeling, simulation and control design.",assets/images/facilities/computing.svg

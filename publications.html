@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<!--
+  ARCSLAB — Publications page
+  Data:   data/publications.csv               (updated weekly by scripts/publications.py)
+          data/publication_categories.csv     (category names, colors, pictures, keyword rules)
+          data/publication_overrides.csv      (manual fixes: category, type, image, hide)
+          data/team.csv                       (column pub_names links authors to member profiles)
+  Program: js/publications.js  ·  QR codes: js/qr.js
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Publications | ARCSLAB</title>
+  <meta name="description" content="Publications of ARCSLAB, University of Torbat Heydarieh: continuum and soft robotics, MEMS/NEMS, vehicle dynamics, intelligent control and AI in engineering — searchable, with citations, BibTeX/APA and QR codes.">
+  <link rel="icon" type="image/svg+xml" href="assets/images/logo/favicon.svg">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="site-header" id="top">
+    <nav class="nav container" aria-label="Main navigation">
+      <a href="index.html#home" class="brand" aria-label="ARCSLAB home">
+        <img src="assets/images/logo/arcslab-logo.svg" alt="" width="34" height="34">
+        <span>ARCS<b>LAB</b></span>
+      </a>
+      <button class="nav-toggle" aria-label="Open menu" aria-expanded="false"><span></span><span></span><span></span></button>
+      <ul class="nav-links">
+        <li><a href="index.html#about">About</a></li>
+        <li><a href="index.html#people">People</a></li>
+        <li><a href="index.html#research">Research</a></li>
+        <li><a href="publications.html" class="active">Publications</a></li>
+        <li><a href="index.html#teaching">Teaching</a></li>
+        <li><a href="index.html#facilities">Facilities</a></li>
+        <li><a href="index.html#news">News</a></li>
+        <li><a href="index.html#contact" class="nav-cta">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+    <section class="page-hero">
+      <div class="container">
+        <p class="eyebrow">ARCSLAB · Research output</p>
+        <h1>Publications</h1>
+        <p class="section-lead">Journal papers, conference papers and books by the lab's faculty and students.
+          Citation counts are refreshed every week from OpenAlex and Scopus; <span id="pub-updated"></span></p>
+        <div class="scope" role="group" aria-label="Whose publications" id="scope"></div>
+        <div class="stat-tiles" id="stats"></div>
+      </div>
+    </section>
+
+    <section class="section section-tight">
+      <div class="container">
+        <!-- charts: two small charts instead of one chart with two y-axes -->
+        <div class="chart-row">
+          <figure class="chart-card"><figcaption><b>Papers per year</b><span id="chart-papers-note"></span></figcaption><div class="chart" id="chart-papers"></div></figure>
+          <figure class="chart-card"><figcaption><b id="chart-cites-title">Citations per year</b><span id="chart-cites-note"></span></figcaption><div class="chart" id="chart-cites"></div></figure>
+        </div>
+        <details class="chart-table"><summary>Show chart data as a table</summary><div id="chart-table"></div></details>
+
+        <h2 class="block-title">Most cited</h2>
+        <ol class="top-cited" id="top-cited"></ol>
+
+        <h2 class="block-title" id="all">All publications</h2>
+        <div class="pub-controls">
+          <input type="search" id="q" placeholder="Search title, author, journal, keyword…" aria-label="Search publications" autocomplete="off">
+          <select id="f-year" aria-label="Year"></select>
+          <select id="f-type" aria-label="Type">
+            <option value="">All types</option><option value="journal">Journal article</option><option value="conference">Conference paper</option>
+            <option value="book">Book</option><option value="chapter">Book chapter</option><option value="thesis">Thesis</option>
+          </select>
+          <select id="f-sort" aria-label="Sort">
+            <option value="new">Newest first</option><option value="cited">Most cited</option><option value="title">Title A–Z</option>
+          </select>
+        </div>
+        <div class="cat-chips" id="f-cats" role="group" aria-label="Category"></div>
+        <p class="result-line"><span id="count"></span> <button class="link-btn" id="clear" hidden>Clear filters ✕</button></p>
+        <div id="pub-list" class="pub-list"></div>
+        <div class="more-wrap"><button class="btn btn-ghost" id="more" hidden>Show more</button></div>
+      </div>
+    </section>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <div class="chart-tip" id="chart-tip" role="tooltip"></div>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <p>© <span id="year"></span> ARCSLAB · Advanced Robotics and Control Systems Laboratory · University of Torbat Heydarieh</p>
+      <a href="#top" class="to-top">Back to top ↑</a>
+    </div>
+  </footer>
+
+  <script src="js/common.js"></script>
+  <script src="js/qr.js"></script>
+  <script src="js/publications.js"></script>
+</body>
+</html>
