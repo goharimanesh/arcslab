@@ -1,8 +1,7 @@
-id,title,title_fa,level,instructor,description,link,kind
-mechatronics-1,Mechatronics 1,مکاترونیک ۱,MSc,Dr. Masoud Goharimanesh,"24 sessions with an HTML presentation and a podcast for every session.",https://goharimanesh.github.io/Mechatronics-1/,course
-adv-eng-math,Advanced Engineering Mathematics,ریاضیات مهندسی پیشرفته,MSc,Dr. Masoud Goharimanesh,"From Fourier analysis and PDEs to beams and nano-cantilevers, perturbation methods, PINNs and optimization; projects in Python / Colab.",,course
-ai-mech-eng,Artificial Intelligence in Mechanical Engineering,هوش مصنوعی در مهندسی مکانیک,MSc,Dr. Masoud Goharimanesh,"Machine learning for mechanical engineers, with lecture notes and session podcasts.",,course
-research-methods,Research Methods,روش پژوهش,Graduate,Dr. Masoud Goharimanesh & Dr. Ali Koochi,"How to plan, carry out and publish research — a complete course hub.",https://goharimanesh.github.io/Research_Methods/,course
-fem,Finite Element Method,روش اجزای محدود,Graduate,Dr. Ali Koochi,"24-session interactive hub; students build their own MATLAB finite-element toolkit.",,course
-cam-design-lab,Cam & Follower Design Lab,طراحی بادامک و پیرو,BSc lab,Dr. Masoud Goharimanesh,"Students design cams, 3D-print them in PLA and test them on the lab's cam–follower rig.",,lab
-git-handbook,A Journey into Git,سفر به دنیای Git,Handbook,Dr. Masoud Goharimanesh,"A Persian handbook on Git and GitHub with a video for each chapter.",,handbook
+id,title,level,instructor,description,link,kind
+mechatronics-1,Mechatronics 1,MSc,Dr. Masoud Goharimanesh,24 sessions with an HTML presentation and a podcast for every session.,https://goharimanesh.github.io/Mechatronics-1/,course
+adv-eng-math,Advanced Engineering Mathematics,MSc,Dr. Masoud Goharimanesh,"From Fourier analysis and PDEs to beams and nano-cantilevers, perturbation methods, PINNs and optimization; projects in Python / Colab.",,course
+ai-mech-eng,Artificial Intelligence in Mechanical Engineering,MSc,Dr. Masoud Goharimanesh,"Machine learning for mechanical engineers, with lecture notes and session podcasts.",,course
+research-methods,Research Methods,MSc,Dr. Masoud Goharimanesh & Dr. Ali Koochi,"How to plan, carry out and publish research — a complete course hub.",https://goharimanesh.github.io/Research_Methods/,course
+Robotics,Cam & Follower Design Lab,MSc,Dr. Masoud Goharimanesh,"Students design cams, 3D-print them in PLA and test them on the lab's cam–follower rig.",,course
+Machinery Dynamics,A Journey into Git,MSc,Dr. Masoud Goharimanesh,A Persian handbook on Git and GitHub with a video for each chapter.,,course
