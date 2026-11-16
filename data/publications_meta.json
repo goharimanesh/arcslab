@@ -1,9 +1,9 @@
 {
-  "updated": "2026-11-09",
+  "updated": "2026-11-16",
   "last_import": "2026-11-09",
   "papers": 134,
-  "citations": 2422,
-  "last_sync": "2026-11-09",
+  "citations": 2425,
+  "last_sync": "2026-11-16",
   "source": "OpenAlex",
   "citations_by_year": {
     "masoud-gohari-manesh": {
@@ -21,7 +21,7 @@
       "2023": 92,
       "2024": 90,
       "2025": 101,
-      "2026": 71
+      "2026": 73
     },
     "ali-koochi": {
       "2007": 0,
